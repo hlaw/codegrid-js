@@ -22,19 +22,22 @@ Download ```codegrid.js``` and set the relative path of json tiles directory
 
 Load the code (for browser use)
 
-```<script type="text/javascript" src="[path]/codegrid.js"></script>
+```html
+<script type="text/javascript" src="[path]/codegrid.js"></script>
 ```
 
 This will create a global object called codegrid.
 
 Initialising:
 
-```grid = codegrid.CodeGrid();
+```js
+grid = codegrid.CodeGrid();
 ```
 
 Calling: result is passed as ```code``` to the callback. ```error``` contains the error string if error, or null if success.
 
-```grid.getCode (lat, lng, callback (error, code) {...} )
+```js
+grid.getCode (lat, lng, callback (error, code) {...} )
 ```
 
 Note: the script would retrive the tile files from a web server. Placing the files at a local directory and use it locally in a web browser would not work.
