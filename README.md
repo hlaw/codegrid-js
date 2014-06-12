@@ -61,7 +61,7 @@ Under the present schema -
 
 * A number of tiles contain highly repetitive data (same country in a grid row, or repeating patterns).  While gzip could save much of the network bandwidth during transit, tiles without compression would still take up much memory when loaded.  The utf grids are therefore compressed in JSON representation, cutting down roughly 80% in size.
 
-* utf-grid tile data derived from Openstreetmap data with some manual fixes, separately using a set of Python scripts - http://github.com/hlaw/gridcode
+* utf-grid tile data derived from Openstreetmap data with some manual fixes, separately using a set of Python scripts - http://github.com/hlaw/codegrid
 
 
 ## License
