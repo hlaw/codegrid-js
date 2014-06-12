@@ -74,7 +74,7 @@ Under the present schema -
 
 ## Github page
 
-* http://github.com/hlaw/gridcode-js
+* http://github.com/hlaw/codegrid-js
 
 
 ## Arthor
