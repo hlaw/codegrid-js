@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<title>Country Code Grid</title>
+
+<link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script type="text/javascript" src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script type="text/javascript" src="https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-hash/v0.2.1/leaflet-hash.js"></script>
+<script type="text/javascript" src="js/codegrid.js"></script>
+<script type="text/javascript" src="demo.js"></script>
+<link href='http://fonts.googleapis.com/css?family=Roboto:100,400' rel='stylesheet' type='text/css'>
+
+<style type="text/css">
+html {
+   background: #eeeeff; 
+}
+body {
+   font-family: 'Roboto', sans-serif; font-weight:100;
+   color: #222;
+}
+h1 { text-align: center; margin: 5px; font-weight:400}
+p {text-align: center; margin: 5px}
+#map {
+   background: white;
+   height: 450px;
+}
+#text {font-weight:400}
+.attr {font-size: 80%; font-style:italic}
+.github {font-size: 80%}
+
+</style>
+
+</head>
+<body onload="initmap();">
+<h1>Country Code Grid</h1>
+<p><span id="text"></span></p>
+<div id="map"></div>
+<p>Click or move cursor on the map to query country code</p>
+<p class="attr">Country code data derived from <a href="https://www.openstreetmap.org">OpenStreetMap</a>, made available under ODbL.</p>
+<p class="github">Source and documentation on <a href="https://github.com/hlaw/codegrid-js">Github</a></p>
+</body>
+</html>
+
