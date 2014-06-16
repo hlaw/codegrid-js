@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8" />
+<title>Country Code Grid</title>
+<script type="text/javascript" src="js/codegrid.js"></script>
+</head>
+<body>
+<h1>Codegrid.js Demo</h1>
+<h2>Using direct Javascript include in HTML</h2>
+<p id="test1"></p>
+<p id="test2"></p>
+<p id="test3"></p>
+<p id="test4"></p>
+
+<script>
+    var grid = codegrid.CodeGrid();
+
+    function call (lat, lng, id, next) {
+        grid.getCode (lat, lng, function (err, code) {
+            var msg;
+            if (err) {
+                msg = err;
+            } else {
+                msg = "Calling getCode("+lat+","+lng+ ") returned: " + code;
+            }
+            document.getElementById(id).innerHTML = msg;
+            if (next) next();
+        });
+    }
+    test1 = function () {call(48,16, "test1", test2)};
+    test2 = function () {call(48.7725, 16.6417, "test2", test3)};
+    test3 = function () {call(48.7935, 16.6383, "test3")};
+    test1();
+
+</script>
+</body>
+</html>
+

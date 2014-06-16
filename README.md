@@ -4,43 +4,72 @@
 
 The source can be easily configured and adapted as needed.
 
-A sample webpage using the library is in the ```demo``` directory.  A live demo is at http://codegrid-osmhk.rhcloud.com
+```demo/demo.html``` is a sample webpage using the library (with leaflet.js).  A live demo is at http://codegrid-osmhk.rhcloud.com
 
 ## Features
 
-* No application server needed (other than static web serving). No dependencies on external geocoding services.
+* No application server needed (other than static web serving for browser use). No dependencies on external geocoding services.
 
-* Compact data size - under present configuration, country code is resolved at grain level of zoom 17 tiles (several hundred meters). Json files covering the planet take up 13M on server, and <1.3M after compression by gzip.
+* Compact data size - under present configuration, country code is resolved at grain level of zoom 17 tiles (several hundred meters). JSON files covering the planet take up 13M, and <1.3M after compression by gzip.
 
-* JS code has no external dependencies (native JSON assumed).
+* JS code has no external dependencies for browser use (native JSON assumed).
 
 * Flexibility - sub-country divisions can be incorporated by custom geojson files.
 
+* Node.js use with local files access supported.
+
 ## Usage
 
-Download ```codegrid.js``` and set the relative path of json tiles directory
+### Browser use
 
-Load the code (for browser use)
+Download ```codegrid.js```
+
+Load the code in HTML
 
 ```html
 <script type="text/javascript" src="[path]/codegrid.js"></script>
 ```
 
-This will create a global object called codegrid.
+This will create a global object called ```codegrid```.
 
-Initialising:
+Initializing:
 
 ```js
 grid = codegrid.CodeGrid();
 ```
+or
+```js
+grid = codegrid.CodeGrid(url_to_tiles_directory, JSON_worldgrid);
+```
 
-Calling: result is passed as ```code``` to the callback. ```error``` contains the error string if error, or null if success.
+Calling:
 
 ```js
 grid.getCode (lat, lng, callback (error, code) {...} )
 ```
 
-Note: the script would retrive the tile files from a web server. Placing the files at a local directory and use it locally in a web browser would not work.
+Result is passed as ```code``` to the callback. ```error``` contains the error string if error, or null if success.
+
+Note: 
+* Under this usage the function could only retrive the data files through a web server. Placing the files at a local directory and providing a local path for access would not work.
+* The default relative url directory of ```../tiles/``` is used if no path is specified during initialization.  Please use a trailing '/' for the directory path.
+* The calling program can preload the file ```tiles/worldgrid.json``` as a JSON object and pass it for initialization.  Otherwise, this file will be requested from the web server on initialization.
+* See ```demo/demo1.html``` and ```demo/demo2.html``` for usage examples.  The latter uses RequireJS to call the library within ```demo2.js```.
+
+
+### Node.js use
+
+```
+npm install git://github.com/hlaw/codegrid-js.git
+```
+
+In Javascript:
+
+```js
+var codegrid = require('codegrid-js');
+```
+
+Under Node.js, codegrid will use ```fs``` to read the tiles directory locally from the installed module. There should be no need to specify any parameter for initilization.  The usage is otherwise the same as in the browser. 
 
 
 ## Data structure
@@ -66,8 +95,7 @@ Under the present schema -
 
 ## License
 
-* Country Code Data in the tiles directory derived from Openstreetmap, available under ODbL.
-(http://www.openstreetmap.org)
+* Country Code Data in the tiles directory produced from Openstreetmap (http://www.openstreetmap.org). Data under Openstreetmap are available under ODbL.  
 
 * JS code and demo: WTFPL (http://en.wikipedia.org/wiki/WTFPL)
 

@@ -1,4 +1,26 @@
-(function (window){
+// codegrid.js
+// https://github.com/hlaw/codegrid-js
+//
+
+// Boilerplate from https://github.com/umdjs/umd/blob/master/returnExports.js
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        // Assume browser only
+        define([], factory(window, null));
+    } else if (typeof exports === 'object') {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        // Requires fs under node for local file access
+        module.exports = factory(null,require('fs'));
+    } else {
+        // Browser globals (root is window)
+        root.codegrid = factory(root,null);
+    }
+}(this, function (root,fs) {
+// ----------------
+
 
 // Configuration. Should match generator settings
 var gridPath = '../tiles/',
@@ -55,12 +77,6 @@ Grid = function (tx, ty, zoom, json){
     }
 
     function getAttr(x, y) {
-        // check error in parameters
-        if ((!isInt(x)) || (!isInt(y)) || (x<0) || (y<0) || 
-            (x>=size) || (y>=size)) {
-            console.warn("Error in arguments to retrieve grid");
-            return null;
-        }
         // resolve redirects and decompress
         var dataY = data[y];
         var dataYLen = dataY.length;
@@ -109,6 +125,14 @@ Grid = function (tx, ty, zoom, json){
     grid.getCode = function (lat, lng, callback) {
         var x = long2tile (lng, elezoom) - elex;
         var y = lat2tile (lat, elezoom) - eley;
+
+        // check error in parameters
+        if ((!isInt(x)) || (!isInt(y)) || (x<0) || (y<0) || 
+            (x>=size) || (y>=size)) {
+            console.warn("Error in arguments to retrieve grid");
+            callback ("Error in input coordinates: out of range");
+            return;
+        }
         var attr = getAttr (x, y);
         if (attr !== null) {
             var code = "None";
@@ -240,12 +264,34 @@ Zoomgrids = function (zlist) {
 };
 
 // Public function for retrieving country codes
-g.CodeGrid = function () {
+// First parameter (optional): URL path to the tiles directory
+// Second parameter (optional): worldGrid object (parsed JSON)
+g.CodeGrid = function (path, wgrid) {
     var codegrid = {},
         zoomGrids,
-        worldGrid;
+        worldGrid,
+        initialized = false,
+        initializing = true,
+        pendingcb = [];
 
-    initWorldGrid ();
+    if (path) {
+        gridPath = path;
+    } else if ((typeof __dirname !== 'undefined') && fs.readFile) { 
+        // points to directory in node module
+        gridPath = __dirname + '/' + gridPath;
+    } 
+
+    if ((!root) && (!fs.readFile) && window) { 
+        // probably been browserified
+        root=window;
+    }
+    
+    if (wgrid) {
+        loadWorldJSON (wgrid);
+    } else {
+        initWorldGrid ();
+    }
+   
     zoomGrids = Zoomgrids(zList);
           
     function initWorldGrid() {
@@ -253,16 +299,32 @@ g.CodeGrid = function () {
         loadjson (worldPath, function (error, json) {
             if (error) 
                 return console.warn("Error loading geocoding data: " + error);
-            worldAttr = json.data;
-            worldGrid = Grid(0,0,0,json);
+            loadWorldJSON (json);
+            // Clear pending calls to getCode
+            var param;
+            while (param = pendingcb.shift()) {
+                codegrid.getCode (param[0], param[1], param[2]);
+            }
             return null;
         });
     }
+    
+    function loadWorldJSON (json) {
+        worldAttr = json.data;
+        worldGrid = Grid(0,0,0,json);
+        if (worldGrid !== null) initialized = true;
+        initializing = false;      
+    }
 
     codegrid.getCode = function (lat, lng, callback) {  
-        if (typeof worldGrid === 'undefined') {
+        if (!initialized) {
+            if (initializing) {
+                // Callback after initialization
+                pendingcb.push ([lat, lng, callback]);
+                return;
+            }
             console.warn("Error : grid not initialized.");
-            callback ("Error - grid not initialized.");
+            callback ("Error: grid not initialized.");
             return;
         }
         worldGrid.getCode (lat, lng, function (error, result) {
@@ -286,18 +348,24 @@ g.CodeGrid = function () {
 // Utility functions
 // http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames        
 function long2tile (lon,zoom) { 
-    return (Math.floor((((lon+180)/360)%1)*Math.pow(2,zoom))); 
+    // http://javascript.about.com/od/problemsolving/a/modulobug.htm
+    return (Math.floor((((((lon+180)/360)%1)+1)%1)*Math.pow(2,zoom))); 
 }
 
+var latlimit =  Math.atan((Math.exp(Math.PI) - Math.exp(-Math.PI))/2) / Math.PI * 180;
+
 function lat2tile (lat,zoom) { 
+    if (Math.abs(lat)>= latlimit) return -1;
     return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 
             1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))); 
 }
 
 function loadjson (path, callback) {
 
+    if (root) {
+    // browser
     // Assume (a) not <= IE6 (b) native JSON in Javascript
-    if (window.XMLHttpRequest && typeof JSON != 'undefined') { 
+    if (root.XMLHttpRequest && typeof JSON != 'undefined') { 
         var xhr = new XMLHttpRequest();
     
         if (xhr) {
@@ -318,10 +386,29 @@ function loadjson (path, callback) {
     } else {
         callback ("JSON request not supported.");
     }
+    }
+    // nodejs
+    else if (fs) {
+        fs.readFile(path, function (e, data) {
+            if (!e) {
+                var result = JSON.parse(data);
+                callback (null, result);
+            } else {
+                if (e.code === 'ENOENT') {
+                    console.warn ("File " + path + " not found.");
+                    callback ("File " + path + " not found.");
+                } else {
+                    console.warn (err.message);
+                    callback (err.message);
+                }
+            }
+        });
+    }
+ 
 }
 
+// ----------------
 
-window.codegrid = g;
-
-}(window));
+return g;
+}));
 

@@ -1,0 +1,31 @@
+{
+  "name": "codegrid-js",
+  "version": "0.0.2",
+  "description": "Javascript function to query country code from coordinates",
+  "author": "hlaw <hhclaw.eb@gmail.com>",
+  "main": "src/codegrid.js",
+  "directories": {
+    "doc": "docs",
+    "demo": "demo",
+    "tiles": "tiles",
+    "src": "src"
+  },
+  "scripts": {
+    "test": "nodejs test/test.js"
+  },
+  "homepage": "https://github.com/hlaw/codegrid-js/",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hlaw/codegrid-js.git"
+  },
+  "keywords": [
+    "codegrid",
+    "openstreetmap"
+  ],
+  "license": "WTFPL",
+  "dependencies":{
+  },
+  "devDependencies": {
+  },
+  "engine": "node >= 0.6.0"
+}
