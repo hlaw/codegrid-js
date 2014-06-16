@@ -5,10 +5,11 @@
   "author": "hlaw <hhclaw.eb@gmail.com>",
   "main": "src/codegrid.js",
   "directories": {
-    "doc": "docs",
+    "doc": "doc",
     "demo": "demo",
     "tiles": "tiles",
     "src": "src"
+    "test": "test"
   },
   "scripts": {
     "test": "nodejs test/test.js"
