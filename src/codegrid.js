@@ -1,5 +1,5 @@
-// codegrid.js
-// https://github.com/hlaw/codegrid-js
+// Country Code Grid
+// Query country code information from geographical coordinates
 //
 
 // Boilerplate from https://github.com/umdjs/umd/blob/master/returnExports.js
@@ -29,7 +29,7 @@ var gridPath = '../tiles/',
     zList = [9, 13];
 
 // Cache of json file across zoom levels
-var jsonCache = {};  
+var jsonCache = {};
 
 // Global attribute list for compressed grids
 var worldAttr;
@@ -52,15 +52,15 @@ Grid = function (tx, ty, zoom, json){
     grid.zoom = zoom;
 
     // initialise
-    if (!(json.hasOwnProperty("grid") && json.hasOwnProperty("keys"))) {
-        console.warn("Error in creating grid - no grid/keys attribute");
+    if (!(json.hasOwnProperty('grid') && json.hasOwnProperty('keys'))) {
+        console.warn('Error in creating grid - no grid/keys attribute');
         return null;
     }
     data = json.grid;
     keys = json.keys;
-    if (json.hasOwnProperty("data")) {
+    if (json.hasOwnProperty('data')) {
         attrs = json.data;
-    } 
+    }
     size = json.grid.length;
     elezoom = Math.round ( Math.log(size) / Math.log(2)) + zoom;
     elex = tx * Math.pow (2, (elezoom - zoom));
@@ -83,7 +83,7 @@ Grid = function (tx, ty, zoom, json){
         if ((dataYLen > 1) && (dataYLen < 4)) {
             var redir = parseInt(dataY);
             if (redir.isNaN || redir < 0 || redir >= size) {
-                console.warn("Error in decoding compressed grid");
+                console.warn('Error in decoding compressed grid');
                 return null;
             }
             dataY = data[redir];
@@ -108,7 +108,7 @@ Grid = function (tx, ty, zoom, json){
         if (!idx.isNaN) {
             if (keys.length > idx) {
                 var key = keys[idx];
-                if (key === "") return {};
+                if (key === '') return {};
                 if (typeof attrs === 'undefined') {
                     if (worldAttr.hasOwnProperty(key)) {
                         return worldAttr[key];
@@ -118,34 +118,34 @@ Grid = function (tx, ty, zoom, json){
                 }
             }
         }
-        console.warn("Error in decoding grid data.");
+        console.warn('Error in decoding grid data.');
         return null;
-    }    
+    }
 
     grid.getCode = function (lat, lng, callback) {
         var x = long2tile (lng, elezoom) - elex;
         var y = lat2tile (lat, elezoom) - eley;
 
         // check error in parameters
-        if ((!isInt(x)) || (!isInt(y)) || (x<0) || (y<0) || 
+        if ((!isInt(x)) || (!isInt(y)) || (x<0) || (y<0) ||
             (x>=size) || (y>=size)) {
-            console.warn("Error in arguments to retrieve grid");
-            callback ("Error in input coordinates: out of range");
+            console.warn('Error in arguments to retrieve grid');
+            callback ('Error in input coordinates: out of range');
             return;
         }
         var attr = getAttr (x, y);
         if (attr !== null) {
-            var code = "None";
-            if (attr.hasOwnProperty("code")) {
+            var code = 'None';
+            if (attr.hasOwnProperty('code')) {
                 code = attr.code;
-                if (attr.hasOwnProperty("subcode")) {
-                    code = code + ":" + attr.subcode;
+                if (attr.hasOwnProperty('subcode')) {
+                    code = code + ':' + attr.subcode;
                 }
             }
             callback (null, code);
-            return;          
+            return;
         }
-        callback ("Error reading geocode data");
+        callback ('Error reading geocode data');
         return;
     };
     return grid;
@@ -157,7 +157,7 @@ Zoomgrids = function (zlist) {
         zGrids = [],
         zoom = zlist[0],
         nextZoomgrids;
-    
+
     if (zlist.length > 1) {
         nextZoomgrids = Zoomgrids (zlist.slice(1));
     }
@@ -189,11 +189,11 @@ Zoomgrids = function (zlist) {
 
         if ((typeof jsonCache[cellx] !== 'undefined') &&
             (typeof jsonCache[cellx][celly] !== 'undefined') &&
-            (typeof jsonCache[cellx][celly][zoom] !== 'undefined')) 
+            (typeof jsonCache[cellx][celly][zoom] !== 'undefined'))
         {
             // Cache hit
             handleJson (x, y, jsonCache[cellx][celly][zoom], callback);
-            return; 
+            return;
         }
 
         //Cache miss
@@ -201,8 +201,8 @@ Zoomgrids = function (zlist) {
         var tilePath = gridPath + cellx.toString() + '/' + celly.toString() + '.json';
         loadjson (tilePath, function (error, json) {
             if (error) {
-                callback ("Grid data loading error.");
-                return console.warn("Error loading grid tile data: " + error);
+                callback ('Grid data loading error.');
+                return console.warn('Error loading grid tile data: ' + error);
             }
             if (typeof json[zoom] !== 'undefined') {
                 handleJson (x, y, json[zoom], callback);
@@ -211,8 +211,8 @@ Zoomgrids = function (zlist) {
                 }
                 jsonCache[cellx][celly] = json;
             } else {
-                callback ("Zoom level " + zoom.toString() + " not in loaded data.");
-                return console.warn ("Zoom level " + zoom.toString() + " not in loaded data.");
+                callback ('Zoom level ' + zoom.toString() + ' not in loaded data.');
+                return console.warn ('Zoom level ' + zoom.toString() + ' not in loaded data.');
             }
         });
         return null;
@@ -220,21 +220,21 @@ Zoomgrids = function (zlist) {
 
     function handleJson (x, y, json, callback) {
         if ((typeof json[x] !== 'undefined') &&
-            (typeof json[x][y] !== 'undefined')) 
+            (typeof json[x][y] !== 'undefined'))
         {
             var rGrid = Grid(x, y, zoom, json[x][y]);
             callback (null, rGrid);
         } else {
-            callback ("Grid tile not found in loaded data.");
-            return console.warn("Grid tile " + zoom.toString() + "/" +
-                   x.toString() + "/" + y.toString() +
-                   " not found in loaded data.");
+            callback ('Grid tile not found in loaded data.');
+            return console.warn('Grid tile ' + zoom.toString() + '/' +
+                   x.toString() + '/' + y.toString() +
+                   ' not found in loaded data.');
         }
         return null;
     }
 
     zoomgrids.getCode = function (lat, lng, callback) {
-       
+
         var x = long2tile (lng, zoom),
             y = lat2tile (lat, zoom);
 
@@ -247,14 +247,14 @@ Zoomgrids = function (zlist) {
                             nextZoomgrids.getCode (lat, lng, callback);
                         } else {
                             callback (error, result);
-                        }                   
+                        }
                     } else {
                         callback (error, result);
                     }
                     return;
                 });
             } else {
-                callback ("Error getting grid data: " + error);
+                callback ('Error getting grid data: ' + error);
             }
             return;
         });
@@ -276,29 +276,29 @@ g.CodeGrid = function (path, wgrid) {
 
     if (path) {
         gridPath = path;
-    } else if ((typeof __dirname !== 'undefined') && fs.readFile) { 
+    } else if ((typeof __dirname !== 'undefined') && fs.readFile) {
         // points to directory in node module
         gridPath = __dirname + '/' + gridPath;
-    } 
+    }
 
-    if ((!root) && (!fs.readFile) && window) { 
+    if ((!root) && (!fs.readFile) && window) {
         // probably been browserified
         root=window;
     }
-    
+
     if (wgrid) {
         loadWorldJSON (wgrid);
     } else {
         initWorldGrid ();
     }
-   
+
     zoomGrids = Zoomgrids(zList);
-          
+
     function initWorldGrid() {
         var worldPath = gridPath + worldFile;
         loadjson (worldPath, function (error, json) {
-            if (error) 
-                return console.warn("Error loading geocoding data: " + error);
+            if (error)
+                return console.warn('Error loading geocoding data: ' + error);
             loadWorldJSON (json);
             // Clear pending calls to getCode
             var param;
@@ -308,23 +308,23 @@ g.CodeGrid = function (path, wgrid) {
             return null;
         });
     }
-    
+
     function loadWorldJSON (json) {
         worldAttr = json.data;
         worldGrid = Grid(0,0,0,json);
         if (worldGrid !== null) initialized = true;
-        initializing = false;      
+        initializing = false;
     }
 
-    codegrid.getCode = function (lat, lng, callback) {  
+    codegrid.getCode = function (lat, lng, callback) {
         if (!initialized) {
             if (initializing) {
                 // Callback after initialization
                 pendingcb.push ([lat, lng, callback]);
                 return;
             }
-            console.warn("Error : grid not initialized.");
-            callback ("Error: grid not initialized.");
+            console.warn('Error : grid not initialized.');
+            callback ('Error: grid not initialized.');
             return;
         }
         worldGrid.getCode (lat, lng, function (error, result) {
@@ -334,7 +334,7 @@ g.CodeGrid = function (path, wgrid) {
                     zoomGrids.getCode (lat, lng, callback);
                 } else {
                     callback (error, result);
-                }                    
+                }
             } else {
                 callback (error, result);
             }
@@ -346,18 +346,18 @@ g.CodeGrid = function (path, wgrid) {
 };
 
 // Utility functions
-// http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames        
-function long2tile (lon,zoom) { 
+// http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
+function long2tile (lon,zoom) {
     // http://javascript.about.com/od/problemsolving/a/modulobug.htm
-    return (Math.floor((((((lon+180)/360)%1)+1)%1)*Math.pow(2,zoom))); 
+    return (Math.floor((((((lon+180)/360)%1)+1)%1)*Math.pow(2,zoom)));
 }
 
 var latlimit =  Math.atan((Math.exp(Math.PI) - Math.exp(-Math.PI))/2) / Math.PI * 180;
 
-function lat2tile (lat,zoom) { 
+function lat2tile (lat,zoom) {
     if (Math.abs(lat)>= latlimit) return -1;
-    return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 
-            1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))); 
+    return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) +
+            1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom)));
 }
 
 function loadjson (path, callback) {
@@ -365,26 +365,26 @@ function loadjson (path, callback) {
     if (root) {
     // browser
     // Assume (a) not <= IE6 (b) native JSON in Javascript
-    if (root.XMLHttpRequest && typeof JSON != 'undefined') { 
+    if (root.XMLHttpRequest && typeof JSON !== 'undefined') {
         var xhr = new XMLHttpRequest();
-    
+
         if (xhr) {
-            xhr.open ("GET", path, true);
-            xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-            xhr.setRequestHeader("Content-type", "application/json");
+            xhr.open ('GET', path, true);
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('Content-type', 'application/json');
 
             xhr.onreadystatechange = function() {
-                if(xhr.readyState == 4 && xhr.status == 200) {
+                if(xhr.readyState === 4 && xhr.status === 200) {
                     var result = JSON.parse(xhr.responseText);
                     callback (null, result);
-                } else if (xhr.readyState == 4) {
-                    callback ("HTTP request returned " + xhr.status.toString());
-                } 
+                } else if (xhr.readyState === 4) {
+                    callback ('HTTP request returned ' + xhr.status.toString());
+                }
             };
             xhr.send();
         }
     } else {
-        callback ("JSON request not supported.");
+        callback ('JSON request not supported.');
     }
     }
     // nodejs
@@ -395,16 +395,16 @@ function loadjson (path, callback) {
                 callback (null, result);
             } else {
                 if (e.code === 'ENOENT') {
-                    console.warn ("File " + path + " not found.");
-                    callback ("File " + path + " not found.");
+                    console.warn ('File ' + path + ' not found.');
+                    callback ('File ' + path + ' not found.');
                 } else {
-                    console.warn (err.message);
-                    callback (err.message);
+                    console.warn (e.message);
+                    callback (e.message);
                 }
             }
         });
     }
- 
+
 }
 
 // ----------------
