@@ -51,7 +51,7 @@ grid.getCode (lat, lng, callback (error, code) {...} )
 Result is passed as ```code``` to the callback. ```error``` contains the error string if error, or null if success.
 
 Note: 
-* Under this usage the function could only retrive the data files through a web server. Placing the files at a local directory and providing a local path for access would not work.
+* Under this usage the function could only retrieve the data files through a web server. Placing the files at a local directory and providing a local path for access would not work.
 * The default relative url directory of ```../tiles/``` is used if no path is specified during initialization.  Please use a trailing '/' for the directory path.
 * The calling program can preload the file ```tiles/worldgrid.json``` as a JSON object and pass it for initialization.  Otherwise, this file will be requested from the web server on initialization.
 * See ```demo/demo1.html``` and ```demo/demo2.html``` for usage examples.  The latter uses RequireJS to call the library within ```demo2.js```.
@@ -69,7 +69,7 @@ In Javascript:
 var codegrid = require('codegrid-js');
 ```
 
-Under Node.js, codegrid will use ```fs``` to read the tiles directory locally from the installed module. There should be no need to specify any parameter for initilization.  The usage is otherwise the same as in the browser. 
+Under Node.js, codegrid will use ```fs``` to read the tiles directory locally from the installed module. There should be no need to specify any parameter for initialization.  The usage is otherwise the same as in the browser. 
 
 
 ## Data structure
@@ -105,7 +105,7 @@ Under the present schema -
 * http://github.com/hlaw/codegrid-js
 
 
-## Arthor
+## Author
 
 * hlaw
 
